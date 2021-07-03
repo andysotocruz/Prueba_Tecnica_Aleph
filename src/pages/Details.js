@@ -1,72 +1,58 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
-import { getMovie } from "../Helpers/Api";
+import MoviesContext from "../context/MoviesContext";
 
 const Details = () => {
   const [DetailsState, setDetailsState] = useState();
 
+  const { moviesState, setMoviesState } = useContext(MoviesContext);
+
   const { name } = useParams();
 
-  const movies = JSON.parse(localStorage.getItem("movies"));
-
-  const movie = movies.filter(
-    (movie) => movie.Title === name.replaceAll("-", " ")
-  )[0];
-
-  const fetchMovie = async () => {
-    try {
-      const data = await getMovie(name.replaceAll("-", " "));
-
-      const newMovie = { ...movie, ...data };
-
-      const newMovies = movies.map((movie) => {
-        if (movie.Title === newMovie.Title) {
-          return newMovie;
-        } else {
-          return movie;
-        }
-      });
-
-      localStorage.setItem("movies", JSON.stringify(newMovies));
-
-      setDetailsState(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
-    if (!Object.keys(movie).includes("voted")) {
-      fetchMovie();
-    } else {
-      setDetailsState(movie);
-    }
-  }, []);
+    const movies = JSON.parse(localStorage.getItem("movies"));
+
+    const movie = movies.filter(
+      (movie) => movie.Title === name.replaceAll("-", " ")
+    )[0];
+
+    setDetailsState(movie);
+  }, [name]);
 
   const handleVote = () => {
-    movie.voted = true;
+    const newMovie = { ...DetailsState, voted: true };
 
-    const newMovies = movies.map((old) => {
+    const newMovies = moviesState.movies.map((old) => {
       if (old.Title === name) {
-        return movie;
+        return newMovie;
       } else {
         return old;
       }
     });
 
+    setDetailsState(Object.assign({}, DetailsState, { voted: true }));
+
     localStorage.setItem("movies", JSON.stringify(newMovies));
 
-    setDetailsState(movie);
+    setMoviesState(Object.assign({}, moviesState, { movies: [...newMovies] }));
   };
 
   const like = () => {
-    movie.Ratings.good++;
+    setDetailsState(
+      Object.assign({}, DetailsState, {
+        Raitings: { good: DetailsState.Ratings.good++ },
+      })
+    );
 
     handleVote();
   };
 
   const dislike = () => {
-    movie.Ratings.bad++;
+    setDetailsState(
+      Object.assign({}, DetailsState, {
+        Raitings: { bad: DetailsState.Ratings.bad++ },
+      })
+    );
 
     handleVote();
   };

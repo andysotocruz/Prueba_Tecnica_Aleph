@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useEffect, useContext, useRef } from "react";
 import Card from "../Components/Card/Card";
 import { getAllMovies } from "../Helpers/Api";
 import { movies as mock } from "../Utils/Movies";
@@ -7,14 +7,12 @@ import MoviesContext from "../context/MoviesContext";
 const Home = () => {
   const { moviesState, setMoviesState } = useContext(MoviesContext);
 
-  const moviesLocal = localStorage.getItem("movies");
+  const moviesLocal = useRef(null);
 
   const getMovies = async () => {
     try {
-      if (!moviesLocal) {
+      if (!moviesLocal.current) {
         const allMovies = await getAllMovies(mock);
-
-        console.log(allMovies);
 
         localStorage.setItem("movies", JSON.stringify(allMovies));
 
@@ -27,8 +25,8 @@ const Home = () => {
       } else {
         setMoviesState(
           Object.assign({}, moviesState, {
-            movies: [...JSON.parse(moviesLocal)],
-            search: [...JSON.parse(moviesLocal)],
+            movies: [...JSON.parse(moviesLocal.current)],
+            search: [...JSON.parse(moviesLocal.current)],
           })
         );
       }
@@ -38,6 +36,8 @@ const Home = () => {
   };
 
   useEffect(() => {
+    moviesLocal.current = localStorage.getItem("movies");
+
     getMovies();
   }, []);
 

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Card = ({ movie }) => {
-  const [name, setname] = useState(movie.Title.replaceAll(" ", "-"));
+  const [name] = useState(movie.Title.replaceAll(" ", "-"));
 
   return (
     <div className="card">

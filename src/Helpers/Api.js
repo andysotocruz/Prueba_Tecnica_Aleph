@@ -1,23 +1,5 @@
 const baseURL = "http://www.omdbapi.com/?apikey=72a16ed2&";
 
-export const getMovie = async (name) => {
-  try {
-    const info = await fetch(`${baseURL}t=${name}&y=2020`);
-
-    const data = await info.json();
-
-    const votes = { good: data.Ratings[2].Value.split("/")[0], bad: 0 };
-
-    data.voted = false;
-
-    data.Ratings = votes;
-
-    return data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 export const getAllMovies = async (data) => {
   let movies = [];
 
